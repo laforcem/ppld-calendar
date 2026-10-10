@@ -6,7 +6,7 @@ import urllib.request
 from typing import Mapping
 
 from . import ppld
-from .caldav import CalDavClient, CalDavError
+from .caldav import CalDavClient, CalDavError, validate_calendar_url
 from .events import checkout_to_event
 from .sync import run_sync
 
@@ -77,6 +77,7 @@ def main(environ: Mapping[str, str] | None = None) -> int:
         missing = [k for k in REQUIRED if not env.get(k)]
         if missing:
             raise SyncFailed("missing env: " + ", ".join(missing))
+        validate_calendar_url(env["CALDAV_CALENDAR_URL"])  # fail before any login attempt
         _sync_once(env)
     except Exception as e:
         if isinstance(e, (ppld.PpldError, CalDavError, SyncFailed)):

@@ -17,8 +17,27 @@ class CalDavError(Exception):
     pass
 
 
+def validate_calendar_url(url: str) -> None:
+    """Reject URLs that are not a plain https calendar-collection address.
+
+    Messages deliberately never echo the URL: it contains the account email.
+    """
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme != "https" or not parts.netloc:
+        raise CalDavError("CALDAV_CALENDAR_URL must be an https URL")
+    if parts.query or parts.fragment:
+        raise CalDavError("CALDAV_CALENDAR_URL must not contain a query string or fragment")
+    if parts.path in ("", "/"):
+        raise CalDavError("CALDAV_CALENDAR_URL must point to a calendar collection, not the server root")
+    inner = parts.path[1:] if parts.path.startswith("/") else parts.path
+    inner = inner[:-1] if inner.endswith("/") else inner
+    if any(segment == "" for segment in inner.split("/")):
+        raise CalDavError("CALDAV_CALENDAR_URL path must not contain an empty path segment (a '//')")
+
+
 class CalDavClient:
     def __init__(self, calendar_url: str, username: str, password: str):
+        validate_calendar_url(calendar_url)
         self.base = calendar_url if calendar_url.endswith("/") else calendar_url + "/"
         token = base64.b64encode(f"{username}:{password}".encode()).decode()
         self._auth = f"Basic {token}"

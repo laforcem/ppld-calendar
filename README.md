@@ -13,7 +13,7 @@ Mirrors Pikes Peak Library District checkout due dates into a dedicated CalDAV (
 |---|---|
 | `PPLD_CARD_NUMBER`, `PPLD_PIN` | Library card login |
 | `CALDAV_USERNAME`, `CALDAV_APP_PASSWORD` | CalDAV credentials (Fastmail app password with Calendars access) |
-| `CALDAV_CALENDAR_URL` | Full CalDAV collection URL of the target calendar |
+| `CALDAV_CALENDAR_URL` | Full CalDAV collection URL of the target calendar (https, no query string, no `//` in the path; validated at startup) |
 | `HEALTHCHECK_URL` | healthchecks.io ping URL; `/fail` is appended on failure |
 | `SYNC_CRON` | Cron schedule for the container, e.g. `0 6 * * *` |
 | `DRY_RUN` | Set to `1` to log intended changes without writing |
